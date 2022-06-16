@@ -36,44 +36,44 @@ rule_base = {"R1":([("animal","tiene","pelo")],
 			 "R12":([("animal","es","mamifero"),
 			 		 ("animal","es","carnivoro"),
 			 		 ("animal","tiene","manchas oscuras")],
-			 	    [("animal","es","cheetah"),0.9]),
+			 	    [(("animal","es","cheetah"),0.9)]),
 			 "R13":([("animal","es","mamifero"),
 			 		 ("animal","es","carnivoro"),
 			 		 ("animal","tiene","rayas negras")],
-			 	    [("animal","es","tigre"),0.85]),
+			 	    [(("animal","es","tigre"),0.85)]),
 			 "R14":([("animal","es","mamifero"),
 			 		 ("animal","es","carnivoro"),
 			 		 ("animal","es","domestico")],
-			 	    [("animal","es","perro"),0.9]),
+			 	    [(("animal","es","perro"),0.9)]),
 			 "R15":([("animal","es","reptil"),
 			 		 ("animal","es","domestico")],
-			 	    [("animal","es","tortuga"),0.7]),
+			 	    [(("animal","es","tortuga"),0.7)]),
 			 "R16":([("animal","es","mamifero"),
 			 		 ("animal","es","ungulado"),
 			 		 ("animal","tiene","cuello largo")],
-			 	    [("animal","es","jirafa"),1.0]),
+			 	    [(("animal","es","jirafa"),1.0)]),
 			 "R17":([("animal","es","mamifero"),
 			 		 ("animal","es","ungulado"),
 			 		 ("animal","tiene","rayas negras")],
-			 	    [("animal","es","cebra"),0.95]),
+			 	    [(("animal","es","cebra"),0.95)]),
 			 "R18":([("animal","es","mamifero"),
 			 		 ("animal","puede","volar"),
 			 		 ("animal","es","feo")],
-			 	    [("animal","es","murcielago"),0.9]),
+			 	    [(("animal","es","murcielago"),0.9)]),
 			 "R19":([("animal","es","ave"),
 			 		 ("animal","vuela","bien")],
-			 	    [("animal","es","gaviota"),0.9]),
+			 	    [(("animal","es","gaviota"),0.9)]),
 			 "R20":([("animal","es","ave"),
 			 		 ("animal","corre","rapido")],
-			 	    [("animal","es","avestruz"),1.0]),
+			 	    [(("animal","es","avestruz"),1.0)]),
 			 "R21":([("animal","es","ave"),
 			 		 ("animal","es","parlanchin")],
-			 	    [("animal","es","loro"),0.95]),
+			 	    [(("animal","es","loro"),0.95)]),
 			 "R22":([("animal","es","mamifero"),
 			 		 ("animal","es","grande"),
 			 		 ("animal","es","ungulado"),
 			 		 ("animal","tiene","trompa")],
-			 	    [("animal","es","elefante"),0.9])}
+			 	    [(("animal","es","elefante"),0.9)])}
 
 hipothesis_base = [(("animal","es","perro"),0.0),
 				   (("animal","es","murcielago"),0.0),
@@ -88,6 +88,12 @@ hipothesis_base = [(("animal","es","perro"),0.0),
 				   (("animal","es","loro"),0.0),]
 
 facts_base = []
+
+alpha = 0.7
+beta = 0.2
+gamma = 0.85
+epsilon = 0.5
+delta = 0.2
 
 def get_rule_base():
 	return rule_base
@@ -110,4 +116,4 @@ def set_facts_base(X):
 def get_actions_from_concl(concl):
 	unzipped = zip(*concl)
 	unzipped_list = list(unzipped)
-	return unzipped_list[0]
+	return unzipped_list[0], unzipped_list[0]

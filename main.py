@@ -4,13 +4,31 @@ def R(H):
 	Rh = {}
 	for id in rule_base:
 		concl = rule_base[id][1]
-		h_list = get_actions_from_concl(concl)
-		if H in h_list: Rh[id] = rule_base[id]
+		for h, vc in concl:
+			if H == h and abs(vc) >= epsilon: Rh[id] = rule_base[id]
 	return Rh
 
 def F(H):
-	Fh = {}
-	for fact in facts_base:
+	Fh = []
+	if len(facts_base):
+		for fact, vc in facts_base:
+			if H == fact and vc >= beta: Fh.append((fact,vc))
+	else: return Fh
+		
+def mod_max(L):
+	l_pos = [vc for vc in L if vc >= 0]
+	l_neg = [vc for vc in L if vc < 0]
+	
 
+def check_proof(H):
+	#Fase 1: Check Fact Base
+	Fh = F(H)
+	if len(Fh):
+		vc_list = zip(*Fh)[1]
+		
 
-def check_rule_base(H):
+	for id in R(H):
+		rule = rule_base[id]
+		prem = rule[0]
+
+		

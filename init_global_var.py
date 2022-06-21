@@ -75,17 +75,17 @@ rule_base = {"R1":([("animal","tiene","pelo")],
 			 		 ("animal","tiene","trompa")],
 			 	    [(("animal","es","elefante"),0.9)])}
 
-hipothesis_base = [(("animal","es","perro"),0.0),
-				   (("animal","es","murcielago"),0.0),
-				   (("animal","es","tigre"),0.0),
-				   (("animal","es","elefante"),0.0),
-				   (("animal","es","cebra"),0.0),
-				   (("animal","es","jirafa"),0.0),
-				   (("animal","es","tortuga"),0.0),
-				   (("animal","es","cheetah"),0.0),
-				   (("animal","es","gaviota"),0.0),
-				   (("animal","es","avestruz"),0.0),
-				   (("animal","es","loro"),0.0),]
+hipothesis_base = {("animal","es","perro"):0.0,
+				   ("animal","es","murcielago"):0.0,
+				   ("animal","es","tigre"):0.0,
+				   ("animal","es","elefante"):0.0,
+				   ("animal","es","cebra"):0.0,
+				   ("animal","es","jirafa"):0.0,
+				   ("animal","es","tortuga"):0.0,
+				   ("animal","es","cheetah"):0.0,
+				   ("animal","es","gaviota"):0.0,
+				   ("animal","es","avestruz"):0.0,
+				   ("animal","es","loro"):0.0}
 
 facts_base = []
 
@@ -95,25 +95,3 @@ gamma = 0.85
 epsilon = 0.5
 delta = 0.2
 
-def get_rule_base():
-	return rule_base
-
-def set_rule_base(X):
-	rule_base = X
-
-def get_hipothesis_base():
-	return hipothesis_base
-
-def set_hipothesis_base(X):
-	hipothesis_base = X
-
-def get_facts_base():
-	return facts_base
-
-def set_facts_base(X):
-	facts_base = X
-
-def get_actions_from_concl(concl):
-	unzipped = zip(*concl)
-	unzipped_list = list(unzipped)
-	return unzipped_list[0], unzipped_list[0]

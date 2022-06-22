@@ -93,5 +93,5 @@ alpha = 0.7
 beta = 0.2
 gamma = 0.85
 epsilon = 0.5
-delta = 0.2
+delta_nom = 0.2
 

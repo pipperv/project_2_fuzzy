@@ -1,14 +1,12 @@
 from init_global_var import *
 
-init_rule_base = rule_base.copy()
-init_hipothesis_base =hipothesis_base.copy()
-init_facts_base = facts_base.copy()
 mark = {} # Marcador de Conclusiones (Opcional 5.2)
 
 def init():
-	rule_base = init_rule_base
-	hipothesis_base = init_hipothesis_base
-	facts_base = init_facts_base
+	for h in hipothesis_base:
+		hipothesis_base[h] = 0.0
+	facts_base = []
+	mark = {}
 
 def R(H):
 	Rh = {}

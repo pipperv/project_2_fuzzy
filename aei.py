@@ -1,3 +1,4 @@
 from main import *
 
-AEI()
+for i in range(2):
+	AEI()

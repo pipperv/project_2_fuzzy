@@ -1,16 +1,111 @@
 from tkinter import *
-from init_global_var import *
+from PIL import Image, ImageTk
 import sys
 
-init_rule_base = rule_base.copy()
-init_hipothesis_base =hipothesis_base.copy()
-init_facts_base = facts_base.copy()
+rule_base = {"R1":([("animal","tiene","pelo")],
+				   [(("animal","es","mamifero"),0.8),
+				    (("animal","es","ave"),-1.0),
+				    (("animal","es","reptil"),-1.0)]),
+			 "R2":([("animal","da","leche")],
+				   [(("animal","es","mamifero"),1.0),
+				    (("animal","es","ave"),-1.0),
+				    (("animal","es","reptil"),-1.0)]),
+			 "R3":([("animal","pone","huevos"),
+			 		("animal","tiene","piel dura")],
+				   [(("animal","es","mamifero"),-1.0),
+				    (("animal","es","ave"),-1.0),
+				    (("animal","es","reptil"),1.0)]),
+			 "R4":([("animal","pone","huevos"),
+			 		("animal","puede","volar")],
+				   [(("animal","es","ave"),1.0),
+				    (("animal","es","reptil"),-1.0)]),
+			 "R5":([("animal","tiene","plumas")],
+				   [(("animal","es","mamifero"),-1.0),
+				    (("animal","es","ave"),1.0),
+				    (("animal","es","reptil"),-1.0)]),
+			 "R6":([("animal","come","carne")],
+			 	   [(("animal","es","carnivoro"),1.0)]),
+			 "R7":([("animal","tiene","garras")],
+			 	   [(("animal","es","carnivoro"),0.8)]),
+			 "R8":([("animal","es","mamifero"),
+			 		("animal","tiene","pezuñas")],
+				   [(("animal","es","ungulado"),1.0)]),
+			 "R9":([("animal","es","mamifero"),
+			 		("animal","es","rumiante")],
+				   [(("animal","es","ungulado"),0.75)]),
+			 "R10":([("animal","vive","con personas")],
+			 	    [(("animal","es","domestico"),0.9)]),
+			 "R11":([("animal","vive","en zoologico")],
+			 	    [(("animal","es","domestico"),-0.8)]),
+			 "R12":([("animal","es","mamifero"),
+			 		 ("animal","es","carnivoro"),
+			 		 ("animal","tiene","manchas oscuras")],
+			 	    [(("animal","es","cheetah"),0.9)]),
+			 "R13":([("animal","es","mamifero"),
+			 		 ("animal","es","carnivoro"),
+			 		 ("animal","tiene","rayas negras")],
+			 	    [(("animal","es","tigre"),0.85)]),
+			 "R14":([("animal","es","mamifero"),
+			 		 ("animal","es","carnivoro"),
+			 		 ("animal","es","domestico")],
+			 	    [(("animal","es","perro"),0.9)]),
+			 "R15":([("animal","es","reptil"),
+			 		 ("animal","es","domestico")],
+			 	    [(("animal","es","tortuga"),0.7)]),
+			 "R16":([("animal","es","mamifero"),
+			 		 ("animal","es","ungulado"),
+			 		 ("animal","tiene","cuello largo")],
+			 	    [(("animal","es","jirafa"),1.0)]),
+			 "R17":([("animal","es","mamifero"),
+			 		 ("animal","es","ungulado"),
+			 		 ("animal","tiene","rayas negras")],
+			 	    [(("animal","es","cebra"),0.95)]),
+			 "R18":([("animal","es","mamifero"),
+			 		 ("animal","puede","volar"),
+			 		 ("animal","es","feo")],
+			 	    [(("animal","es","murcielago"),0.9)]),
+			 "R19":([("animal","es","ave"),
+			 		 ("animal","vuela","bien")],
+			 	    [(("animal","es","gaviota"),0.9)]),
+			 "R20":([("animal","es","ave"),
+			 		 ("animal","corre","rapido")],
+			 	    [(("animal","es","avestruz"),1.0)]),
+			 "R21":([("animal","es","ave"),
+			 		 ("animal","es","parlanchin")],
+			 	    [(("animal","es","loro"),0.95)]),
+			 "R22":([("animal","es","mamifero"),
+			 		 ("animal","es","grande"),
+			 		 ("animal","es","ungulado"),
+			 		 ("animal","tiene","trompa")],
+			 	    [(("animal","es","elefante"),0.9)])}
+
+hipothesis_base = {("animal","es","perro"):0.0,
+				   ("animal","es","murcielago"):0.0,
+				   ("animal","es","tigre"):0.0,
+				   ("animal","es","elefante"):0.0,
+				   ("animal","es","cebra"):0.0,
+				   ("animal","es","jirafa"):0.0,
+				   ("animal","es","tortuga"):0.0,
+				   ("animal","es","cheetah"):0.0,
+				   ("animal","es","gaviota"):0.0,
+				   ("animal","es","avestruz"):0.0,
+				   ("animal","es","loro"):0.0}
+
+facts_base = []
+
+alpha = 0.7
+beta = 0.2
+gamma = 0.85
+epsilon = 0.5
+delta_nom = 0.2
+
 mark = {} # Marcador de Conclusiones (Opcional 5.2)
 
 def init():
-	rule_base = init_rule_base
-	hipothesis_base = init_hipothesis_base
-	facts_base = init_facts_base
+	for h in hipothesis_base:
+		hipothesis_base[h] = 0.0
+	facts_base = []
+	mark = {}
 
 def R(H):
 	Rh = {}
@@ -30,7 +125,6 @@ def F(H):
 
 def ask_user(H):
 	q = f"¿Con que certeza el {H[0]} {H[1]} {H[2]}? "
-	print(q)
 	q_var.set(q)
 	button.wait_variable(ans_var)
 	vc = float(ans_var.get())
@@ -125,7 +219,6 @@ def check_proof(H,rule_precalif=False):
 			return ( H , vc )
 
 def AEI(d1=True,rule_precalif=True):
-	init()
 	for h in hipothesis_base:
 		H = check_proof(h,rule_precalif)
 		if H is not None:
@@ -133,8 +226,9 @@ def AEI(d1=True,rule_precalif=True):
 			hipothesis_base[h] = vc
 			if d1 and vc >= alpha:
 				ans = f"El {H[0][0]} {H[0][1]} {H[0][2]} con certeza {vc:.2f}."
+				path = f"img/{H[0][2]}.jpg"
 				final_var.set(ans)
-				print(ans)
+				display_image(path)
 				return
 	max_vc = 0.0
 	for h in hipothesis_base:
@@ -143,8 +237,9 @@ def AEI(d1=True,rule_precalif=True):
 			best_h = h
 			max_vc = vc
 	ans = f"El {best_h[0]} {best_h[1]} {best_h[2]} con certeza {max_vc:.2f}."
+	path = f"img/{best_h[2]}.jpg"
 	final_var.set(ans)
-	print(ans)
+	display_image(path)
 	return
 
 import tkinter
@@ -154,8 +249,30 @@ def send_value():
 	ans_var.set(str(value))
 	scale.set(0.00)
 
+def display_image(img_path):
+	image = Image.open(img_path)
+	image = image.resize((300, 300), Image.ANTIALIAS)
+	img = ImageTk.PhotoImage(image)
+	photo = Label(master,image=img)
+	photo.image = img
+	photo.grid(row=5,column=2)
+
+def init_img():
+	image = Image.open("img/empty.jpg")
+	image = image.resize((300, 300), Image.ANTIALIAS)
+	img = ImageTk.PhotoImage(image)
+	photo = Label(master,image=img)
+	photo.image = img
+	photo.grid(row=5,column=2)
+
 def start():
 	AEI()
+
+def restart_aei():
+	init_img()
+	final_var.set('')
+	init()
+	start()
 
 master=tkinter.Tk()
 master.title("AEI para adivinar Animalitos")
@@ -177,11 +294,16 @@ scale.grid(row=3,column=2)
 button=tkinter.Button(master, text="Enviar", command=send_value)
 button.grid(row=3,column=3)
 
-button=tkinter.Button(master, text="Start", command=start)
-button.grid(row=1,column=1)
+frame=tkinter.Frame(master, width=40, height=40)
+frame.grid(row=1,column=1)
 
 final_label=Label(master, textvariable=final_var)
 final_label.grid(row=4,column=2)
+
+init_img()
+
+button_r=tkinter.Button(master, text="Reiniciar", command=restart_aei)
+button_r.grid(row=6,column=2)
 
 master.after(500, start())
 master.mainloop()

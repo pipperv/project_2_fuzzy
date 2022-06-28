@@ -1,4 +1,3 @@
 from main import *
 
-for i in range(2):
-	AEI()
+AEI(rule_precalif=False,marker=True)

@@ -60,7 +60,7 @@ def precalif(prem):
 			if disyuncion(vc_list) < beta: return False
 	return True
 
-def check_proof(H,rule_precalif=False):
+def check_proof(H,rule_precalif=False,marker=False):
 	#Fase 1: Check Fact Base
 	Fh = F(H)
 	if len(Fh):
@@ -81,26 +81,35 @@ def check_proof(H,rule_precalif=False):
 				continuar = True
 			#Precalificador aproves!!
 			if continuar: 
+				continuar = False
 				concl = rule[1]
 				vc_list = []
-				for accion in concl:
-					if H == accion[0]:
-						vc_rule = accion[1]
-				delta = delta_nom / vc_rule
 				vc_prem = 0.0
 				for claus in prem:
-					trip_claus = check_proof(claus)
+					trip_claus = check_proof(claus,rule_precalif,marker)
 					if trip_claus is not None:
 						vc_claus = trip_claus[1]
 						if vc_claus < beta: # La clausula falla
 							vc_prem = vc_claus
 							break
 						vc_list.append(vc_claus)
-						vc_prem = min(vc_list)
-				if abs(vc_prem) >= delta:
-					vc = vc_prem * vc_rule
-					facts_base.append(( H , vc ))
-					if abs(vc) >= gamma: return ( H , vc )
+						vc_prem = conjuncion(vc_list)
+					else: return
+				for accion in concl:
+					trip = accion[0]
+					if vc_prem >= beta:
+						vc_rule = accion[1]
+						delta = delta_nom / vc_rule
+						if vc_prem >= delta:
+							vc = vc_prem * vc_rule
+							facts_base.append(( trip , vc ))
+							if H == trip:
+								vc_H = vc
+								continuar = True
+					else: facts_base.append(( trip , 0.0 ))
+				if continuar:
+					if abs(vc_H) >= gamma:
+						return ( H , vc_H )
 		# Si se evaluaron todas las reglas, se revisa la base de hechos
 		Fh = F(H)
 		if len(Fh):
@@ -110,17 +119,22 @@ def check_proof(H,rule_precalif=False):
 
 	#Fase 3: Ask User
 	if not len(Rh):
-		if H not in mark: #Revisa el Marcador de Conclusiones (Opcional 5.2)
+		if marker: #Revisa el Marcador de Conclusiones (Opcional 5.2)
+			if H not in mark:
+				vc = float(ask_user(H))
+				facts_base.append(( H , vc ))
+				# Anota la conclusion en el marcador si el valor de certeza es menor a beta.
+				if abs(vc) < beta: mark[H] = vc
+				return ( H , vc )
+		else:
 			vc = float(ask_user(H))
 			facts_base.append(( H , vc ))
-			# Anota la conclusion en el marcador si el valor de certeza es menor a beta.
-			if abs(vc) < beta: mark[H] = vc
 			return ( H , vc )
 
-def AEI(d1=True,rule_precalif=True):
+def AEI(d1=True,rule_precalif=False,marker=False):
 	init()
 	for h in hipothesis_base:
-		H = check_proof(h,rule_precalif)
+		H = check_proof(h,rule_precalif,marker)
 		if H is not None:
 			vc = H[1]
 			hipothesis_base[h] = vc
@@ -131,7 +145,7 @@ def AEI(d1=True,rule_precalif=True):
 	max_vc = 0.0
 	for h in hipothesis_base:
 		vc = hipothesis_base[h]
-		if vc > max_vc:
+		if vc >= max_vc:
 			best_h = h
 			max_vc = vc
 	ans = f"El {best_h[0]} {best_h[1]} {best_h[2]} con certeza {max_vc:.2f}."

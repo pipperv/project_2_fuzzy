@@ -1,3 +1,3 @@
 from main import *
 
-AEI(rule_precalif=False,marker=True)
+AEI(rule_precalif=True,marker=True)

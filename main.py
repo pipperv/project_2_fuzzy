@@ -5,7 +5,7 @@ mark = {} # Marcador de Conclusiones (Opcional 5.2)
 def init():
 	for h in hipothesis_base:
 		hipothesis_base[h] = 0.0
-	facts_base = []
+	facts_base.clear()
 	mark = {}
 
 def R(H):

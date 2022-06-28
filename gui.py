@@ -1,110 +1,16 @@
 from tkinter import *
 from PIL import Image, ImageTk
 import sys
+import os
 
-rule_base = {"R1":([("animal","tiene","pelo")],
-				   [(("animal","es","mamifero"),0.8),
-				    (("animal","es","ave"),-1.0),
-				    (("animal","es","reptil"),-1.0)]),
-			 "R2":([("animal","da","leche")],
-				   [(("animal","es","mamifero"),1.0),
-				    (("animal","es","ave"),-1.0),
-				    (("animal","es","reptil"),-1.0)]),
-			 "R3":([("animal","pone","huevos"),
-			 		("animal","tiene","piel dura")],
-				   [(("animal","es","mamifero"),-1.0),
-				    (("animal","es","ave"),-1.0),
-				    (("animal","es","reptil"),1.0)]),
-			 "R4":([("animal","pone","huevos"),
-			 		("animal","puede","volar")],
-				   [(("animal","es","ave"),1.0),
-				    (("animal","es","reptil"),-1.0)]),
-			 "R5":([("animal","tiene","plumas")],
-				   [(("animal","es","mamifero"),-1.0),
-				    (("animal","es","ave"),1.0),
-				    (("animal","es","reptil"),-1.0)]),
-			 "R6":([("animal","come","carne")],
-			 	   [(("animal","es","carnivoro"),1.0)]),
-			 "R7":([("animal","tiene","garras")],
-			 	   [(("animal","es","carnivoro"),0.8)]),
-			 "R8":([("animal","es","mamifero"),
-			 		("animal","tiene","pezuñas")],
-				   [(("animal","es","ungulado"),1.0)]),
-			 "R9":([("animal","es","mamifero"),
-			 		("animal","es","rumiante")],
-				   [(("animal","es","ungulado"),0.75)]),
-			 "R10":([("animal","vive","con personas")],
-			 	    [(("animal","es","domestico"),0.9)]),
-			 "R11":([("animal","vive","en zoologico")],
-			 	    [(("animal","es","domestico"),-0.8)]),
-			 "R12":([("animal","es","mamifero"),
-			 		 ("animal","es","carnivoro"),
-			 		 ("animal","tiene","manchas oscuras")],
-			 	    [(("animal","es","cheetah"),0.9)]),
-			 "R13":([("animal","es","mamifero"),
-			 		 ("animal","es","carnivoro"),
-			 		 ("animal","tiene","rayas negras")],
-			 	    [(("animal","es","tigre"),0.85)]),
-			 "R14":([("animal","es","mamifero"),
-			 		 ("animal","es","carnivoro"),
-			 		 ("animal","es","domestico")],
-			 	    [(("animal","es","perro"),0.9)]),
-			 "R15":([("animal","es","reptil"),
-			 		 ("animal","es","domestico")],
-			 	    [(("animal","es","tortuga"),0.7)]),
-			 "R16":([("animal","es","mamifero"),
-			 		 ("animal","es","ungulado"),
-			 		 ("animal","tiene","cuello largo")],
-			 	    [(("animal","es","jirafa"),1.0)]),
-			 "R17":([("animal","es","mamifero"),
-			 		 ("animal","es","ungulado"),
-			 		 ("animal","tiene","rayas negras")],
-			 	    [(("animal","es","cebra"),0.95)]),
-			 "R18":([("animal","es","mamifero"),
-			 		 ("animal","puede","volar"),
-			 		 ("animal","es","feo")],
-			 	    [(("animal","es","murcielago"),0.9)]),
-			 "R19":([("animal","es","ave"),
-			 		 ("animal","vuela","bien")],
-			 	    [(("animal","es","gaviota"),0.9)]),
-			 "R20":([("animal","es","ave"),
-			 		 ("animal","corre","rapido")],
-			 	    [(("animal","es","avestruz"),1.0)]),
-			 "R21":([("animal","es","ave"),
-			 		 ("animal","es","parlanchin")],
-			 	    [(("animal","es","loro"),0.95)]),
-			 "R22":([("animal","es","mamifero"),
-			 		 ("animal","es","grande"),
-			 		 ("animal","es","ungulado"),
-			 		 ("animal","tiene","trompa")],
-			 	    [(("animal","es","elefante"),0.9)])}
-
-hipothesis_base = {("animal","es","perro"):0.0,
-				   ("animal","es","murcielago"):0.0,
-				   ("animal","es","tigre"):0.0,
-				   ("animal","es","elefante"):0.0,
-				   ("animal","es","cebra"):0.0,
-				   ("animal","es","jirafa"):0.0,
-				   ("animal","es","tortuga"):0.0,
-				   ("animal","es","cheetah"):0.0,
-				   ("animal","es","gaviota"):0.0,
-				   ("animal","es","avestruz"):0.0,
-				   ("animal","es","loro"):0.0}
-
-facts_base = []
-
-alpha = 0.7
-beta = 0.2
-gamma = 0.85
-epsilon = 0.5
-delta_nom = 0.2
+from init_global_var import *
 
 mark = {} # Marcador de Conclusiones (Opcional 5.2)
 
-def init():
+def initial():
 	for h in hipothesis_base:
 		hipothesis_base[h] = 0.0
-	facts_base = []
+	facts_base.clear()
 	mark = {}
 
 def R(H):
@@ -161,7 +67,7 @@ def precalif(prem):
 			if disyuncion(vc_list) < beta: return False
 	return True
 
-def check_proof(H,rule_precalif=False):
+def check_proof(H,rule_precalif=False,marker=False):
 	#Fase 1: Check Fact Base
 	Fh = F(H)
 	if len(Fh):
@@ -182,26 +88,35 @@ def check_proof(H,rule_precalif=False):
 				continuar = True
 			#Precalificador aproves!!
 			if continuar: 
+				continuar = False
 				concl = rule[1]
 				vc_list = []
-				for accion in concl:
-					if H == accion[0]:
-						vc_rule = accion[1]
-				delta = delta_nom / vc_rule
 				vc_prem = 0.0
 				for claus in prem:
-					trip_claus = check_proof(claus)
+					trip_claus = check_proof(claus,rule_precalif,marker)
 					if trip_claus is not None:
 						vc_claus = trip_claus[1]
 						if vc_claus < beta: # La clausula falla
 							vc_prem = vc_claus
 							break
 						vc_list.append(vc_claus)
-						vc_prem = min(vc_list)
-				if abs(vc_prem) >= delta:
-					vc = vc_prem * vc_rule
-					facts_base.append(( H , vc ))
-					if abs(vc) >= gamma: return ( H , vc )
+						vc_prem = conjuncion(vc_list)
+					else: return
+				for accion in concl:
+					trip = accion[0]
+					if vc_prem >= beta:
+						vc_rule = accion[1]
+						delta = delta_nom / vc_rule
+						if vc_prem >= delta:
+							vc = vc_prem * vc_rule
+							facts_base.append(( trip , vc ))
+							if H == trip:
+								vc_H = vc
+								continuar = True
+					else: facts_base.append(( trip , 0.0 ))
+				if continuar:
+					if abs(vc_H) >= gamma:
+						return ( H , vc_H )
 		# Si se evaluaron todas las reglas, se revisa la base de hechos
 		Fh = F(H)
 		if len(Fh):
@@ -211,16 +126,22 @@ def check_proof(H,rule_precalif=False):
 
 	#Fase 3: Ask User
 	if not len(Rh):
-		if H not in mark: #Revisa el Marcador de Conclusiones (Opcional 5.2)
+		if marker: #Revisa el Marcador de Conclusiones (Opcional 5.2)
+			if H not in mark:
+				vc = float(ask_user(H))
+				facts_base.append(( H , vc ))
+				# Anota la conclusion en el marcador si el valor de certeza es menor a beta.
+				if abs(vc) < beta: mark[H] = vc
+				return ( H , vc )
+		else:
 			vc = float(ask_user(H))
 			facts_base.append(( H , vc ))
-			# Anota la conclusion en el marcador si el valor de certeza es menor a beta.
-			if abs(vc) < beta: mark[H] = vc
 			return ( H , vc )
 
-def AEI(d1=True,rule_precalif=True):
+def AEI(d1=True,rule_precalif=False,marker=False):
+	initial()
 	for h in hipothesis_base:
-		H = check_proof(h,rule_precalif)
+		H = check_proof(h,rule_precalif,marker)
 		if H is not None:
 			vc = H[1]
 			hipothesis_base[h] = vc
@@ -233,7 +154,7 @@ def AEI(d1=True,rule_precalif=True):
 	max_vc = 0.0
 	for h in hipothesis_base:
 		vc = hipothesis_base[h]
-		if vc > max_vc:
+		if vc >= max_vc:
 			best_h = h
 			max_vc = vc
 	ans = f"El {best_h[0]} {best_h[1]} {best_h[2]} con certeza {max_vc:.2f}."
@@ -255,7 +176,7 @@ def display_image(img_path):
 	img = ImageTk.PhotoImage(image)
 	photo = Label(master,image=img)
 	photo.image = img
-	photo.grid(row=5,column=2)
+	photo.grid(row=7,column=2)
 
 def init_img():
 	image = Image.open("img/empty.jpg")
@@ -263,20 +184,27 @@ def init_img():
 	img = ImageTk.PhotoImage(image)
 	photo = Label(master,image=img)
 	photo.image = img
-	photo.grid(row=5,column=2)
+	photo.grid(row=7,column=2)
 
 def start():
-	AEI()
+	AEI(rule_precalif=True,marker=True)
 
 def restart_aei():
 	init_img()
 	final_var.set('')
-	init()
+	initial()
 	start()
+
+def exit_programm():
+	master.destroy()
+	os._exit(0)
+
 
 master=tkinter.Tk()
 master.title("AEI para adivinar Animalitos")
-master.geometry("420x720")
+master.geometry("420x680")
+
+master.protocol('WM_DELETE_WINDOW', exit_programm)
 
 q_var = StringVar()
 q_var.set('Presione el boton "Start" para empezar')
@@ -285,25 +213,35 @@ ans_var = StringVar()
 final_var = StringVar()
 final_var.set('')
 
-q_label=Label(master, textvariable=q_var)
+instrucciones = "Instrucciones: \n \n Contesta cada preguna con el valor de certeza \n que tengas sobre la caracteristica del animal.\n \n Una vez que contestes, la pregunta va a \n cambiar para que contestes una nueva. \n \nContesta las preguntas hasta que \n el programa indique el animal determinado."
+
+q_label=Label(master, text=instrucciones)
 q_label.grid(row=2,column=2)
 
+q_label=Label(master, textvariable=q_var)
+q_label.grid(row=4,column=2)
+
 scale=Scale(master, from_=-1.0, to=1.0, resolution=0.01, length=300 , orient=HORIZONTAL)
-scale.grid(row=3,column=2)
+scale.grid(row=5,column=2)
 
 button=tkinter.Button(master, text="Enviar", command=send_value)
-button.grid(row=3,column=3)
+button.grid(row=5,column=3)
 
-frame=tkinter.Frame(master, width=40, height=40)
+frame=tkinter.Frame(master, width=20, height=20)
 frame.grid(row=1,column=1)
 
+frame=tkinter.Frame(master, width=20, height=40)
+frame.grid(row=3,column=1)
+
 final_label=Label(master, textvariable=final_var)
-final_label.grid(row=4,column=2)
+final_label.grid(row=6,column=2)
 
 init_img()
 
 button_r=tkinter.Button(master, text="Reiniciar", command=restart_aei)
-button_r.grid(row=6,column=2)
+button_r.grid(row=8,column=2)
+button_r=tkinter.Button(master, text="Salir", command=exit_programm)
+button_r.grid(row=8,column=3)
 
 master.after(500, start())
 master.mainloop()

@@ -6,9 +6,9 @@ Si no tiene pip instalado, se puede instalar siguiendo las instrucciones del sig
 
 Las unicas Librerias necesarias son __Tkinter__ y __Pillow__, y solo se utilizan en el codigo que lanza la interfaz grafica (_gui.py_). Se pueden installar ambas librerias con la siguiente linea de comando en un terminal:
 
-´´´
+'''
 pip install tk pillow
-´´´
+'''
 
 Una vez instaladas todas la librerias necesarias, se puede clonar este repositorio con:
 
